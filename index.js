@@ -2456,8 +2456,8 @@ function compositeBitmapOverBackground (image) {
 /**
  * Converts the image to a base 64 string
  * @param mime the mime type of the image data to be created
- * @param cb a Node-style function to call with the buffer as the second argument
- * @returns this for chaining of methods
+ * @param cb an optional Node-style function to call with the buffer as the second argument
+ * @returns a Promise
  */
 Jimp.prototype.getBase64 = function (mime, cb) {
     if (mime === Jimp.AUTO) { // allow auto MIME detection
@@ -2466,16 +2466,20 @@ Jimp.prototype.getBase64 = function (mime, cb) {
 
     if (typeof mime !== "string")
         return throwError.call(this, "mime must be a string", cb);
-    if (typeof cb !== "function")
-        return throwError.call(this, "cb must be a function", cb);
 
-    this.getBuffer(mime, function (err, data) {
-        if (err) return throwError.call(this, err, cb);
-        var src = "data:" + mime + ";base64," + data.toString("base64");
-        return cb.call(this, null, src);
+    var that = this;
+
+    return new Promise(function (resolve, reject) {
+        cb = cb || function (err, img) {
+            if (err) reject(err);
+            else resolve(img);
+        }
+        that.getBuffer(mime, function (err, data) {
+            if (err) return throwError.call(that, err, cb);
+            var src = "data:" + mime + ";base64," + data.toString("base64");
+            return cb.call(that, null, src);
+        });
     });
-
-    return this;
 };
 
 /**

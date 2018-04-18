@@ -265,6 +265,12 @@ A Base64 data URI can be generated in the same way as a Buffer, using:
 ```js
 image.getBase64( mime, cb ); // Node-style callback will be fired with result
 ```
+Using promises:
+```js
+image.getBase64(mime).then(function (base64) {
+   // do stuff with the image
+}
+```
 
 ### PNG and JPEG quality ###
 
